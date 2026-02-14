@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+<meta charset="UTF-8">
+<title>vue-resourse-json</title>
+</head>
+<body>
+<div id="app">
+<ul>
+<li v-for="item in itemList" :id="item.id" style="list-style-type: none;">
+ 
+编号：{{item.id}}</br>
+作者：{{item.author}}</br>
+书名{{item.name}}</br>
+价格：{{item.price}}</br>
+出版时间{{item.time}}</br>
+ 
+</li>
+</ul>
+</div> 
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script type="text/javascript" src="vue-resourse-json.js"></script>
+
+</body>
+</html>
