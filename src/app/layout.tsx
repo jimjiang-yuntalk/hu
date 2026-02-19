@@ -3,7 +3,7 @@ import "./globals.css";
 import { AppSidebar } from "@/components/AppSidebar";
 
 export const metadata: Metadata = {
-  title: "羽拨心弦",
+  title: "斛教练",
   description: "专业羽毛球知识库 - 技术、战术与训练",
 };
 

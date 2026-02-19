@@ -26,7 +26,7 @@ export default async function Home() {
   return (
     <div className="space-y-10 max-w-6xl mx-auto pb-10">
       <div className="text-center space-y-4 py-10">
-        <h1 className="text-5xl font-extrabold tracking-tight text-primary">羽拨心弦</h1>
+        <h1 className="text-5xl font-extrabold tracking-tight text-primary">斛教练</h1>
         <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
           提升你的比赛水平：专业技术、战术意识与科学训练体系
         </p>
