@@ -27,12 +27,12 @@ export async function AppSidebar() {
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Image 
             src="/logo.png" 
-            alt="羽拨心弦 Logo" 
+            alt="斛教练 Logo" 
             width={32} 
             height={32} 
             className="h-8 w-8 object-contain"
           />
-          <span>羽拨心弦</span>
+          <span>斛教练</span>
         </Link>
       </div>
       <Accordion type="single" collapsible className="w-full">
