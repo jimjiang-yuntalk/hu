@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppSidebar } from "@/components/AppSidebar";
+import MobileHeader from "@/components/MobileHeader";
 
 export const metadata: Metadata = {
   title: "斛教练",
@@ -15,12 +16,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`antialiased flex min-h-screen bg-background text-foreground font-sans`}
+        className={`antialiased bg-background text-foreground font-sans`}
       >
-        <AppSidebar />
-        <main className="flex-1 p-8 overflow-y-auto h-screen relative">
-          {children}
-        </main>
+        <div className="flex min-h-screen w-full">
+          <div className="hidden md:block">
+            <AppSidebar />
+          </div>
+          <div className="flex-1 flex flex-col min-h-screen">
+            <MobileHeader sidebar={<AppSidebar />} />
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto relative">
+              {children}
+            </main>
+          </div>
+        </div>
       </body>
     </html>
   );
