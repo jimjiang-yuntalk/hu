@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
           role: "user",
           content: [
             { type: "input_text", text: prompt },
-            { type: "input_image", image_url: dataUrl },
+            { type: "input_image", image_url: dataUrl, detail: "auto" },
           ],
         },
       ],
