@@ -9,6 +9,7 @@ import * as Icons from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LucideIcon } from 'lucide-react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export async function AppSidebar() {
   const categories = await prisma.category.findMany({
@@ -66,7 +67,8 @@ export async function AppSidebar() {
           )
         })}
       </Accordion>
-      <div className="mt-auto pt-4 border-t border-sidebar-border flex flex-col gap-1">
+      <div className="mt-auto pt-4 border-t border-sidebar-border flex flex-col gap-2">
+        <ThemeToggle />
         <Link href="/user-settings" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors">
            <Icons.User className="h-4 w-4" />
            <span>用户上传</span>
