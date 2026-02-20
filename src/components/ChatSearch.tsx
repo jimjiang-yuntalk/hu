@@ -47,51 +47,58 @@ export default function ChatSearch() {
   }
 
   return (
-    <section className="space-y-4 rounded-xl border p-6 bg-card">
-      <div>
-        <h2 className="text-2xl font-bold">知识库检索</h2>
+    <section className="rounded-xl border bg-white/70 dark:bg-card shadow-sm">
+      <div className="px-6 pt-6 pb-4 border-b">
+        <h2 className="text-xl font-semibold">Ask 斛教练 about 羽毛球知识库</h2>
         <p className="text-muted-foreground text-sm mt-1">输入问题，检索文章与 Markdown 知识库。</p>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="例如：网前收搓的关键要点是什么？"
-          className="min-h-[90px] w-full rounded-md border bg-background px-3 py-2 text-sm"
-        />
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleAsk}
-            className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-            disabled={loading}
-          >
-            {loading ? "检索中..." : "开始检索"}
-          </button>
-          {error && <span className="text-sm text-destructive">{error}</span>}
-        </div>
+      <div className="px-6 py-4 space-y-4">
+        {answer && (
+          <div className="rounded-lg border p-4 bg-background text-sm whitespace-pre-wrap">
+            {answer}
+          </div>
+        )}
+
+        {sources.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">来源链接</h3>
+            <ul className="space-y-1 text-sm">
+              {sources.map((s, idx) => (
+                <li key={idx}>
+                  <a href={s.link} className="text-primary hover:underline" target="_blank" rel="noreferrer">
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {answer && (
-        <div className="rounded-lg border p-4 bg-background text-sm whitespace-pre-wrap">
-          {answer}
+      <div className="px-6 pb-6">
+        <div className="rounded-2xl border bg-muted/40 p-3">
+          <textarea
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ask about 羽毛球知识库..."
+            className="min-h-[72px] w-full resize-none bg-transparent text-sm focus:outline-none"
+          />
+          <div className="flex items-center justify-between pt-2">
+            <div className="text-xs text-muted-foreground">仅检索知识库</div>
+            <div className="flex items-center gap-3">
+              {error && <span className="text-xs text-destructive">{error}</span>}
+              <button
+                onClick={handleAsk}
+                className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                disabled={loading}
+              >
+                {loading ? "检索中..." : "发送"}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
-
-      {sources.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold">来源链接</h3>
-          <ul className="space-y-1 text-sm">
-            {sources.map((s, idx) => (
-              <li key={idx}>
-                <a href={s.link} className="text-primary hover:underline" target="_blank" rel="noreferrer">
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      </div>
     </section>
   )
 }
