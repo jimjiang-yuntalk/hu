@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import Link from 'next/link'
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import ChatSearch from "@/components/ChatSearch"
 
 export default async function Home() {
   const netArticles = await prisma.article.findMany({
@@ -31,6 +32,8 @@ export default async function Home() {
           提升你的比赛水平：专业技术、战术意识与科学训练体系
         </p>
       </div>
+
+      <ChatSearch />
 
       <Section title="网前技术 (Net Play)" articles={netArticles} />
       <Section title="中场技术 (Mid-Court)" articles={midArticles} />
