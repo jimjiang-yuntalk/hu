@@ -28,11 +28,11 @@ export async function AppSidebar() {
           <Image 
             src="/logo.png" 
             alt="斛教练 Logo" 
-            width={32} 
-            height={32} 
-            className="h-8 w-8 object-contain"
+            width={48} 
+            height={48} 
+            className="h-12 w-12 object-contain"
           />
-          <span>斛教练</span>
+          <span className="text-2xl">斛教练</span>
         </Link>
       </div>
       <Accordion type="single" collapsible className="w-full">
