@@ -69,7 +69,7 @@ export async function AppSidebar() {
       <div className="mt-auto pt-4 border-t border-sidebar-border flex flex-col gap-1">
         <Link href="/user-settings" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors">
            <Icons.User className="h-4 w-4" />
-           <span>用户设置</span>
+           <span>用户上传</span>
         </Link>
         <Link href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors">
            <Icons.Settings className="h-4 w-4" />
