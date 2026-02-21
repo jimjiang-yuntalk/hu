@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppSidebar } from "@/components/AppSidebar";
 import MobileHeader from "@/components/MobileHeader";
+import FloatingChat from "@/components/FloatingChat";
 
 export const metadata: Metadata = {
   title: "斛教练",
@@ -29,6 +30,7 @@ export default function RootLayout({
             </main>
           </div>
         </div>
+        <FloatingChat />
       </body>
     </html>
   );

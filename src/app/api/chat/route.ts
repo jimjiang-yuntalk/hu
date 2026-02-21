@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { searchKnowledge } from "@/lib/kb-search"
+import { searchRag } from "@/lib/kb-search-rag"
+import { openclawResponses } from "@/lib/openclaw-client"
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,13 +9,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "缺少问题" }, { status: 400 })
     }
 
-    const sources = await searchKnowledge(query, 6)
+    const citations = await searchRag(query, 8)
+    if (citations.length === 0) {
+      return NextResponse.json({
+        answer_markdown: "知识库中暂无相关依据。建议补充相关条目或提供更具体的问题。",
+        citations: [],
+      })
+    }
 
-    const answer = sources.length > 0
-      ? "已从知识库中找到相关内容，见下方来源链接。"
-      : "知识库中未找到相关内容。"
+    const citeHint = citations
+      .map((c) => `- ${c.cite_id}: ${c.title} / ${c.heading} => ${c.snippet}`)
+      .join("\n")
 
-    return NextResponse.json({ answer, sources })
+    const prompt = `你是“斛教练知识库助手”。仅基于给定证据回答，使用中文，结构化要点化。
+要求：
+1) 每个关键结论必须用引用标注，格式：[标题](cite:cite_id)
+2) 每条结论至少1个引用，最好2个引用
+3) 不确定需标注“可能/推测”
+4) 不要编造证据
+
+用户问题：${query}
+
+证据列表：\n${citeHint}\n`
+
+    const answer_markdown = await openclawResponses(prompt, { user: `kb:${query.slice(0, 50)}` })
+
+    try {
+      const { prisma } = await import("@/lib/prisma")
+      await prisma.qaHistory.create({
+        data: {
+          question: query,
+          answer: answer_markdown,
+          citations_json: JSON.stringify(citations || []),
+        },
+      })
+    } catch (e) {
+      console.error("qa history save error:", e)
+    }
+
+    return NextResponse.json({ answer_markdown, citations })
   } catch (e) {
     console.error("chat error:", e)
     return NextResponse.json({ error: "生成失败" }, { status: 500 })

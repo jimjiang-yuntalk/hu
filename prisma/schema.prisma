@@ -52,6 +52,14 @@ model Tag {
   createdAt DateTime  @default(now())
 }
 
+model QaHistory {
+  id             String   @id @default(uuid())
+  question       String
+  answer         String?
+  citations_json String?
+  createdAt      DateTime @default(now())
+}
+
 enum CourtArea {
   Net     // 网前
   Mid     // 中场

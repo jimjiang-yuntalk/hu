@@ -6,6 +6,7 @@ export default function UserSettingsPage() {
   const [imageUrl, setImageUrl] = useState<string>("")
   const [videoUrl, setVideoUrl] = useState<string>("")
   const [report, setReport] = useState<string>("")
+  const [reportLinks, setReportLinks] = useState<any[]>([])
   const [uploading, setUploading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState<string>("")
@@ -14,9 +15,11 @@ export default function UserSettingsPage() {
     const savedImage = window.localStorage.getItem("userSettings.imageUrl")
     const savedVideo = window.localStorage.getItem("userSettings.videoUrl")
     const savedReport = window.localStorage.getItem("userSettings.imageReport")
+    const savedLinks = window.localStorage.getItem("userSettings.reportLinks")
     if (savedImage) setImageUrl(savedImage)
     if (savedVideo) setVideoUrl(savedVideo)
     if (savedReport) setReport(savedReport)
+    if (savedLinks) setReportLinks(JSON.parse(savedLinks))
   }, [])
 
   const uploadFile = async (file: File) => {
@@ -76,8 +79,9 @@ export default function UserSettingsPage() {
   }
 
   const generateReport = async () => {
-    if (!imageUrl) {
-      setError("请先上传图片")
+    const mediaUrl = imageUrl || videoUrl
+    if (!mediaUrl) {
+      setError("请先上传图片或视频")
       return
     }
 
@@ -85,10 +89,10 @@ export default function UserSettingsPage() {
     setAnalyzing(true)
 
     try {
-      const res = await fetch("/api/image-report", {
+      const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl }),
+        body: JSON.stringify({ mediaUrl }),
       })
 
       if (!res.ok) {
@@ -97,11 +101,13 @@ export default function UserSettingsPage() {
       }
 
       const data = await res.json()
-      const text = data?.report as string
+      const text = data?.report_markdown as string
       if (!text) throw new Error("未返回报告")
 
       setReport(text)
+      setReportLinks(data?.recommended_links || [])
       window.localStorage.setItem("userSettings.imageReport", text)
+      window.localStorage.setItem("userSettings.reportLinks", JSON.stringify(data?.recommended_links || []))
     } catch (err: any) {
       setError(err?.message || "生成失败")
     } finally {
@@ -167,6 +173,20 @@ export default function UserSettingsPage() {
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">暂无报告。请先上传图片并生成点评。</p>
+        )}
+        {reportLinks.length > 0 && (
+          <div className="rounded-lg border p-4 bg-card">
+            <div className="text-sm font-semibold mb-2">深入学习推荐</div>
+            <ul className="text-sm space-y-1">
+              {reportLinks.map((link: any, idx: number) => (
+                <li key={idx}>
+                  <a className="text-primary hover:underline" href={link.url + '#' + link.anchor} target="_blank" rel="noreferrer">
+                    {link.title} · {link.heading}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 

@@ -69,6 +69,10 @@ export async function AppSidebar() {
       </Accordion>
       <div className="mt-auto pt-4 border-t border-sidebar-border flex flex-col gap-2">
         <ThemeToggle />
+        <Link href="/qa-history" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors">
+           <Icons.History className="h-4 w-4" />
+           <span>问答历史</span>
+        </Link>
         <Link href="/user-settings" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors">
            <Icons.User className="h-4 w-4" />
            <span>用户上传</span>

@@ -2,16 +2,12 @@ import path from "path"
 import fs from "fs/promises"
 import { notFound } from "next/navigation"
 import { renderMarkdown } from "@/lib/markdown-render"
+import { resolveDocIdToPath } from "@/lib/doc-resolver"
 
-export default async function MarkdownPage({
-  searchParams,
-}: {
-  searchParams: { file?: string }
-}) {
-  const fileParam = searchParams?.file
-  if (!fileParam) return notFound()
+export default async function DocPage({ params }: { params: { doc_id: string } }) {
+  const filePath = await resolveDocIdToPath(params.doc_id)
+  if (!filePath) return notFound()
 
-  const filePath = Buffer.from(fileParam, "base64url").toString("utf-8")
   const baseDir = path.join(process.cwd(), "ybxy")
   const resolved = path.resolve(filePath)
   if (!resolved.startsWith(baseDir)) return notFound()
