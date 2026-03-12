@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { Citation } from "@/lib/kb-search-rag"
+import { cn } from "@/lib/utils"
 
 const highlightSnippet = (root: HTMLElement, snippet: string) => {
   if (!snippet) return
@@ -24,7 +25,15 @@ const highlightSnippet = (root: HTMLElement, snippet: string) => {
   }
 }
 
-export default function EvidencePanel({ citation }: { citation?: Citation }) {
+export default function EvidencePanel({
+  citation,
+  showTitle = true,
+  className,
+}: {
+  citation?: Citation
+  showTitle?: boolean
+  className?: string
+}) {
   const [html, setHtml] = useState<string>("")
   const ref = useRef<HTMLDivElement>(null)
 
@@ -58,8 +67,8 @@ export default function EvidencePanel({ citation }: { citation?: Citation }) {
   }, [citation, html])
 
   return (
-    <div className="rounded-xl border bg-card p-4 h-full overflow-auto">
-      <div className="text-sm text-muted-foreground mb-2">证据 / 文章</div>
+    <div className={cn("rounded-xl border bg-card p-4 h-full overflow-auto", className)}>
+      {showTitle && <div className="text-sm text-muted-foreground mb-2">相关知识</div>}
       {citation ? (
         <div ref={ref} className="prose prose-neutral dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
       ) : (

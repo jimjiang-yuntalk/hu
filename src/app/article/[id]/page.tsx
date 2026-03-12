@@ -5,6 +5,9 @@ import { Separator } from "@/components/ui/separator"
 import * as cheerio from 'cheerio';
 import Link from 'next/link';
 import { Tag } from 'lucide-react';
+import SharePanel from '@/components/SharePanel'
+import SwipeNavigator from '@/components/SwipeNavigator'
+import SectionCarousel from '@/components/SectionCarousel'
 
 // Helper for Chinese translations
 const difficultyMap: Record<string, string> = {
@@ -21,8 +24,21 @@ const courtAreaMap: Record<string, string> = {
   'Full': '全场',
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ArticlePage({ 
+  params, 
+  searchParams 
+}: { 
+  params: Promise<{ id: string }>,
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const { id } = await params
+  const { q } = await searchParams
+  const searchQuery = typeof q === 'string' ? q : ''
+  
+  if (!id || typeof id !== 'string' || id.trim() === '') {
+    notFound()
+  }
+
   const article = await prisma.article.findUnique({
     where: { id },
     include: { 
@@ -31,31 +47,102 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     }
   })
 
+  const articleList = await prisma.article.findMany({
+    select: { id: true },
+    orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+  })
+  const index = articleList.findIndex((item) => item.id === id)
+  const prevId = index > 0 ? articleList[index - 1]?.id : null
+  const nextId = index >= 0 && index < articleList.length - 1 ? articleList[index + 1]?.id : null
+
   if (!article) {
     notFound()
   }
 
-  // Parse HTML for TOC
+  // Parse HTML for TOC and highlight search terms
   const $ = cheerio.load(article.content);
   const headings: { id: string; text: string; level: number }[] = [];
   
-  $('h2, h3').each((_, el) => {
-    const text = $(el).text();
-    const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u4e00-\u9fa5-]/g, ''); // Simple slugify
-    $(el).attr('id', id); // Inject ID back into content (we need to render the modified HTML)
-    headings.push({
-      id,
-      text,
-      level: parseInt(el.tagName.substring(1))
+  // Highlight search terms in content if query exists
+  if (searchQuery) {
+    $('*:not(script, style, pre, code)').each((_, el) => {
+      const text = $(el).text();
+      if (text && text.toLowerCase().includes(searchQuery.toLowerCase())) {
+        // Simple highlighting - wrap matching text in span with highlight class
+        const highlighted = text.replace(
+          new RegExp(`(${searchQuery})`, 'gi'), 
+          '<mark class="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">$1</mark>'
+        );
+        $(el).html(highlighted);
+      }
     });
+  }
+  
+  // Extract sections by H2 headings only (H3 content merged into H2)
+  const sections: { title: string; level: number; content: string }[] = [];
+  let currentSection: { title: string; level: number; content: string } | null = null;
+  
+  // Process all elements sequentially
+  $('body').children().each((_, el) => {
+    const tagName = el.tagName?.toLowerCase();
+    
+    if (tagName === 'h2') {
+      // Save previous section if exists
+      if (currentSection) {
+        sections.push(currentSection);
+      }
+      
+      const text = $(el).text();
+      const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\u4e00-\u9fa5-]/g, '');
+      $(el).attr('id', id);
+      
+      headings.push({
+        id,
+        text,
+        level: 2
+      });
+      
+      // Start new H2 section
+      currentSection = {
+        title: text,
+        level: 2,
+        content: ''
+      };
+    } else if (tagName === 'h3') {
+      // Inject H3 as bold text within current section (if any)
+      if (currentSection) {
+        const h3Text = $(el).text();
+        currentSection.content += `<p><strong>${h3Text}</strong></p>`;
+      }
+      // If no current section, treat as regular content
+    } else if (currentSection) {
+      // Add content to current section
+      currentSection.content += $.html(el);
+    } else {
+      // Content before first H2 heading - add to a default section
+      if (sections.length === 0) {
+        sections.push({
+          title: '',
+          level: 2,
+          content: $.html(el)
+        });
+      } else {
+        sections[sections.length - 1].content += $.html(el);
+      }
+    }
   });
-
-  const contentWithIds = $('body').html() || article.content;
+  
+  // Save last section
+  if (currentSection) {
+    sections.push(currentSection);
+  }
 
   return (
+    <SwipeNavigator prevHref={prevId ? `/article/${prevId}` : null} nextHref={nextId ? `/article/${nextId}` : null}>
     <div className="max-w-7xl mx-auto flex gap-10 pb-20">
       {/* Main Content */}
       <div className="flex-1 min-w-0">
+        {/* 搜索栏已移除 */}
         <div className="mb-8 space-y-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <Link href="/" className="hover:text-primary">首页</Link>
@@ -103,17 +190,16 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
               ))}
             </div>
           )}
+
+          <div className="mt-4">
+            <SharePanel />
+          </div>
         </div>
 
         <Separator className="my-6" />
 
-        {/* Article Body - TipTap HTML */}
-        <div 
-          className="prose prose-lg dark:prose-invert max-w-none 
-            prose-headings:font-bold prose-headings:text-primary 
-            prose-a:text-secondary prose-img:rounded-lg"
-          dangerouslySetInnerHTML={{ __html: contentWithIds }}
-        />
+        {/* Article Body - Section Carousel (Mobile) / Cards (Desktop) */}
+        <SectionCarousel sections={sections} />
         
         {article.video_url && (
           <div className="mt-10 p-4 bg-muted rounded-lg">
@@ -151,5 +237,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
         </div>
       </div>
     </div>
+    </SwipeNavigator>
   )
 }

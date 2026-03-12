@@ -3,15 +3,20 @@
 import { useEffect, useMemo, useRef } from "react"
 import { marked } from "marked"
 import type { Citation } from "@/lib/kb-search-rag"
+import { cn } from "@/lib/utils"
 
 export default function AnswerPanel({
   answerMarkdown,
   citations,
   onCitationClick,
+  showTitle = true,
+  className,
 }: {
   answerMarkdown: string
   citations: Citation[]
   onCitationClick: (citeId: string) => void
+  showTitle?: boolean
+  className?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -37,8 +42,8 @@ export default function AnswerPanel({
   }, [onCitationClick])
 
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <div className="text-sm text-muted-foreground mb-2">回答</div>
+    <div className={cn("rounded-xl border bg-card p-4", className)}>
+      {showTitle && <div className="text-sm text-muted-foreground mb-2">回答</div>}
       <div ref={ref} className="prose prose-neutral dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
       {citations.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">

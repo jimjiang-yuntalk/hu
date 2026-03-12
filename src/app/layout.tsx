@@ -5,8 +5,8 @@ import MobileHeader from "@/components/MobileHeader";
 import FloatingChat from "@/components/FloatingChat";
 
 export const metadata: Metadata = {
-  title: "斛教练",
-  description: "专业羽毛球知识库 - 技术、战术与训练",
+  title: "AI乒羽馆",
+  description: "AI乒羽馆 - 乒羽训练与知识库",
 };
 
 export default function RootLayout({
@@ -19,12 +19,12 @@ export default function RootLayout({
       <body
         className={`antialiased bg-background text-foreground font-sans`}
       >
-        <div className="flex min-h-screen w-full">
-          <div className="hidden md:block">
+        <div className="flex h-screen w-full overflow-hidden">
+          <div className="hidden md:block h-full shrink-0">
             <AppSidebar />
           </div>
-          <div className="flex-1 flex flex-col min-h-screen">
-            <MobileHeader sidebar={<AppSidebar />} />
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <MobileHeader sidebar={<AppSidebar isMobile />} />
             <main className="flex-1 p-4 md:p-8 overflow-y-auto relative">
               {children}
             </main>

@@ -329,7 +329,7 @@ export default function ImportForm({ categories, articles }: ImportFormProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>场区 (Area)</Label>
+                <Label>场区</Label>
                 <Select 
                   value={formData.court_area} 
                   onValueChange={v => setFormData({...formData, court_area: v})}
@@ -346,7 +346,7 @@ export default function ImportForm({ categories, articles }: ImportFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label>标签 (Tags)</Label>
+              <Label>标签</Label>
               <Input 
                 value={formData.tags} 
                 onChange={e => setFormData({...formData, tags: e.target.value})}
@@ -364,7 +364,7 @@ export default function ImportForm({ categories, articles }: ImportFormProps) {
               ) : (
                 <Save className="mr-2 h-4 w-4" />
               )}
-              {step === 'saving' ? '保存中...' : '确认导入 (Confirm Import)'}
+              {step === 'saving' ? '保存中...' : '确认导入'}
             </Button>
 
             <Button 

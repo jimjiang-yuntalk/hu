@@ -39,7 +39,7 @@ const seedData: CategorySeed[] = [
     ]
   },
   {
-    name: '技术 - 后场技术 (Technique - Rear-court)',
+    name: '后场技术 (Technique - Rear-court)',
     slug: 'technique-rear',
     icon: 'Dumbbell',
     children: [

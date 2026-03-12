@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { searchRag } from "@/lib/kb-search-rag"
 import { openclawResponses } from "@/lib/openclaw-client"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,9 +12,26 @@ export async function POST(req: NextRequest) {
 
     const citations = await searchRag(query, 8)
     if (citations.length === 0) {
+      const answer_markdown = "知识库中暂无相关依据。建议补充相关条目或提供更具体的问题。"
+      let qaId = ""
+
+      try {
+        const qa = await prisma.qaHistory.create({
+          data: {
+            question: query,
+            answer: answer_markdown,
+            citations_json: JSON.stringify([]),
+          },
+        })
+        qaId = qa.id
+      } catch (e) {
+        console.error("qa history save error:", e)
+      }
+
       return NextResponse.json({
-        answer_markdown: "知识库中暂无相关依据。建议补充相关条目或提供更具体的问题。",
+        answer_markdown,
         citations: [],
+        qaId,
       })
     }
 
@@ -33,21 +51,23 @@ export async function POST(req: NextRequest) {
 证据列表：\n${citeHint}\n`
 
     const answer_markdown = await openclawResponses(prompt, { user: `kb:${query.slice(0, 50)}` })
+    
+    let qaId = "";
 
     try {
-      const { prisma } = await import("@/lib/prisma")
-      await prisma.qaHistory.create({
+      const qa = await prisma.qaHistory.create({
         data: {
           question: query,
           answer: answer_markdown,
           citations_json: JSON.stringify(citations || []),
         },
       })
+      qaId = qa.id;
     } catch (e) {
       console.error("qa history save error:", e)
     }
 
-    return NextResponse.json({ answer_markdown, citations })
+    return NextResponse.json({ answer_markdown, citations, qaId })
   } catch (e) {
     console.error("chat error:", e)
     return NextResponse.json({ error: "生成失败" }, { status: 500 })

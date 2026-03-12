@@ -125,3 +125,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+.elegant-slogan {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", "Songti SC", serif;
+  letter-spacing: 0.12em;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--primary), #66bb6a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.elegant-slogan:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

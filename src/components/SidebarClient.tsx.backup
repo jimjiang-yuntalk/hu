@@ -1,0 +1,175 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import * as Icons from "lucide-react"
+import { LucideIcon } from "lucide-react"
+import ThemeToggle from "@/components/ThemeToggle"
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+  icon: string | null
+  parentId: string | null
+  children: Category[]
+}
+
+interface SidebarClientProps {
+  categories: Category[]
+}
+
+export function SidebarClient({ categories }: SidebarClientProps) {
+  const [isOpen, setIsOpen] = React.useState(true)
+  const pathname = usePathname()
+
+  const toggleSidebar = () => setIsOpen(!isOpen)
+
+  return (
+    <div
+      className={cn(
+        "bg-background border-r h-full flex flex-col transition-all duration-300 ease-in-out shrink-0",
+        isOpen ? "w-80" : "w-16"
+      )}
+    >
+      {/* Header */}
+      <div className={cn("flex items-center p-4", isOpen ? "justify-between" : "justify-center flex-col gap-4")}>
+        <Link href="/" className={cn("flex items-center gap-2 hover:opacity-80 transition-opacity", !isOpen && "justify-center")}>
+          <Image
+            src="/logo.png"
+            alt="斛教练 Logo"
+            width={48}
+            height={48}
+            className="h-10 w-10 object-contain"
+            style={{ color: 'transparent' }}
+          />
+          {isOpen && <span className="text-xl font-bold text-primary whitespace-nowrap">斛教练</span>}
+        </Link>
+        
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar}
+          className="shrink-0"
+          title={isOpen ? "收起侧边栏" : "展开侧边栏"}
+        >
+          {isOpen ? <Icons.PanelLeftClose className="h-5 w-5" /> : <Icons.PanelLeftOpen className="h-5 w-5" />}
+        </Button>
+      </div>
+
+      {/* Content - Scrollable Area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2">
+        {isOpen ? (
+          <Accordion type="single" collapsible className="w-full">
+            {categories.map((category) => {
+              const IconName = (category.icon as keyof typeof Icons) || "Circle"
+              const Icon = (Icons[IconName] as LucideIcon) || Icons.Circle
+
+              return (
+                <AccordionItem key={category.id} value={category.id} className="border-b-0 mb-1">
+                  <AccordionTrigger className="hover:bg-accent hover:text-accent-foreground px-3 rounded-md py-2 text-sm font-medium [&[data-state=open]]:bg-accent [&[data-state=open]]:text-accent-foreground">
+                    <div className="flex items-center gap-3 text-left">
+                      <Icon className="h-5 w-5 text-primary shrink-0" />
+                      <span className="truncate">{category.name.split('(')[0].trim()}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-1">
+                    <div className="flex flex-col gap-1 mt-1 pl-4 border-l-2 border-muted ml-5">
+                      {category.children.map((child) => (
+                        <Link
+                          key={child.id}
+                          href={`/category/${child.slug}`}
+                          className={cn(
+                            "text-sm py-2 px-3 rounded-md hover:bg-muted transition-colors block truncate",
+                            pathname === `/category/${child.slug}` 
+                              ? "bg-muted text-foreground font-medium" 
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {child.name.split('(')[0].trim()}
+                        </Link>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
+        ) : (
+          <div className="flex flex-col gap-2 items-center w-full">
+            {categories.map((category) => {
+              const IconName = (category.icon as keyof typeof Icons) || "Circle"
+              const Icon = (Icons[IconName] as LucideIcon) || Icons.Circle
+              
+              return (
+                <Button
+                  key={category.id}
+                  variant="ghost"
+                  size="icon"
+                  className="w-10 h-10 rounded-md hover:bg-accent"
+                  onClick={() => setIsOpen(true)} // Clicking icon expands sidebar
+                  title={category.name}
+                >
+                  <Icon className="h-5 w-5 text-primary" />
+                </Button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className={cn("p-2 border-t border-sidebar-border flex flex-col gap-2", !isOpen && "items-center")}>
+        <div className={cn("flex w-full", isOpen ? "justify-start" : "justify-center")}>
+           <ThemeToggle showText={isOpen} />
+        </div>
+        
+        <Link 
+          href="/qa-history" 
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+            !isOpen && "justify-center px-0 w-10 h-10"
+          )}
+          title="问答历史"
+        >
+           <Icons.History className="h-5 w-5" />
+           {isOpen && <span>问答历史</span>}
+        </Link>
+        
+        <Link 
+          href="/user-settings" 
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+            !isOpen && "justify-center px-0 w-10 h-10"
+          )}
+          title="用户上传"
+        >
+           <Icons.User className="h-5 w-5" />
+           {isOpen && <span>用户上传</span>}
+        </Link>
+        
+        <Link 
+          href="/admin" 
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+            !isOpen && "justify-center px-0 w-10 h-10"
+          )}
+          title="管理后台"
+        >
+           <Icons.Settings className="h-5 w-5" />
+           {isOpen && <span>管理后台</span>}
+        </Link>
+      </div>
+    </div>
+  )
+}

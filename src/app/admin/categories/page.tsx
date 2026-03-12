@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">分类管理 (Categories)</h1>
+        <h1 className="text-3xl font-bold">分类管理</h1>
         <CategorySheet categories={categories} />
       </div>
 
@@ -35,11 +35,11 @@ export default async function CategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>名称 (Name)</TableHead>
+              <TableHead>名称</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>层级 (Level)</TableHead>
-              <TableHead>关键词 (Keywords)</TableHead>
-              <TableHead>文章数 (Articles)</TableHead>
+              <TableHead>层级</TableHead>
+              <TableHead>关键词</TableHead>
+              <TableHead>文章数</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -54,9 +54,9 @@ export default async function CategoriesPage() {
                 <TableCell>{category.slug}</TableCell>
                 <TableCell>
                   {category.parentId ? (
-                    <Badge variant="outline">二级 (Sub)</Badge>
+                    <Badge variant="outline">二级</Badge>
                   ) : (
-                    <Badge>一级 (Root)</Badge>
+                    <Badge>一级</Badge>
                   )}
                 </TableCell>
                 <TableCell className="max-w-[200px] truncate text-muted-foreground">

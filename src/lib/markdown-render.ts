@@ -10,5 +10,8 @@ export const renderMarkdown = (content: string) => {
     const id = slugify(text)
     return `<h${depth} id="${id}">${text}</h${depth}>`
   }
-  return marked.parse(content, { renderer })
+  const normalized = content
+    .replace(/^---\n[\s\S]*?\n---\n/, "")
+    .replace(/\\\./g, ".")
+  return marked.parse(normalized, { renderer })
 }

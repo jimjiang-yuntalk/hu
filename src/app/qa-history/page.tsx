@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma"
+import Link from "next/link"
+
+export const dynamic = "force-dynamic"
 
 export default async function QaHistoryPage({
   searchParams,
@@ -21,12 +24,12 @@ export default async function QaHistoryPage({
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="text-2xl font-bold">问答历史</div>
+      <div className="text-2xl font-bold">斛兵论道</div>
       <form className="flex gap-3" action="/qa-history" method="get">
         <input
           name="q"
           defaultValue={q}
-          placeholder="搜索历史问题/答案"
+          placeholder="搜索历史问答"
           className="h-11 flex-1 rounded-lg border bg-background px-3 text-sm focus:outline-none"
         />
         <button className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
@@ -41,17 +44,23 @@ export default async function QaHistoryPage({
           </div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="rounded-xl border bg-card p-4">
+            <Link
+              key={item.id}
+              href={`/qa/${item.id}`}
+              className="block rounded-xl border bg-card p-4 transition hover:border-primary/30 hover:shadow-md"
+            >
               <div className="text-sm text-muted-foreground">
                 {new Date(item.createdAt).toLocaleString("zh-CN")}
               </div>
-              <div className="mt-2 font-medium">Q：{item.question}</div>
+              <div className="mt-2 font-medium hover:text-primary transition-colors">
+                {item.question}
+              </div>
               {item.answer && (
                 <div className="mt-2 text-sm text-muted-foreground line-clamp-3">
-                  A：{item.answer.replace(/\n+/g, " ").slice(0, 240)}
+                  斛教练：{item.answer.replace(/\n+/g, " ").slice(0, 240)}
                 </div>
               )}
-            </div>
+            </Link>
           ))
         )}
       </div>

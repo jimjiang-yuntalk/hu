@@ -190,7 +190,7 @@ export default function ArticleForm({ categories, initialData, action }: Article
         </div>
         
          <div className="grid gap-2 col-span-2">
-          <Label htmlFor="video_url">视频链接 (Video URL)</Label>
+          <Label htmlFor="video_url">视频链接</Label>
           <Input 
             id="video_url" 
             name="video_url" 
@@ -202,7 +202,7 @@ export default function ArticleForm({ categories, initialData, action }: Article
 
         {/* Tags Input */}
         <div className="grid gap-2">
-          <Label htmlFor="tags">标签 (Tags)</Label>
+          <Label htmlFor="tags">标签</Label>
           <Input 
             id="tags" 
             name="tags" 
@@ -214,7 +214,7 @@ export default function ArticleForm({ categories, initialData, action }: Article
         </div>
 
         <div className="grid gap-2">
-          <Label>内容 (Content)</Label>
+          <Label>内容</Label>
           <TiptapEditor content={content} onChange={setContent} />
           <input type="hidden" name="content" value={content} />
         </div>

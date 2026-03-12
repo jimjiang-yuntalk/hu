@@ -4,9 +4,11 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import SharePanel from "@/components/SharePanel"
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  const slug = decodeURIComponent(rawSlug)
   
   const category = await prisma.category.findUnique({
     where: { slug },
@@ -43,43 +45,40 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <p className="text-xl text-muted-foreground">
           {category.articles.length} 篇文章 (Articles)
         </p>
+
+        <SharePanel />
       </div>
 
       {category.articles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {category.articles.map((article) => (
-            <Card key={article.id} className="hover:shadow-lg transition-all duration-300 group border-t-4 border-t-transparent hover:border-t-secondary h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-                  <Link href={`/article/${article.id}`} className="hover:underline decoration-secondary underline-offset-4">
+            <Link key={article.id} href={`/article/${article.id}`} className="block mb-6 no-underline">
+              <Card className="hover:shadow-lg transition-all duration-300 group border-t-4 border-t-transparent hover:border-t-secondary h-full flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
                     {article.title}
-                  </Link>
-                </CardTitle>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {article.difficulty && (
-                    <Badge variant="secondary" className="font-normal text-xs bg-secondary/10 text-secondary-foreground border-secondary/20 border">
-                      {article.difficulty.replace('L', 'Lv').replace('_', ' ')}
-                    </Badge>
-                  )}
-                  {article.court_area && (
-                    <Badge variant="outline" className="font-normal text-xs">
-                      {article.court_area}
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <div 
-                  className="text-sm text-muted-foreground line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: article.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...' }}
-                />
-              </CardContent>
-              <div className="p-6 pt-0 mt-auto">
-                <Button variant="ghost" className="w-full group-hover:bg-secondary group-hover:text-secondary-foreground transition-colors" asChild>
-                  <Link href={`/article/${article.id}`}>阅读全文 &rarr;</Link>
-                </Button>
-              </div>
-            </Card>
+                  </CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {article.difficulty && (
+                      <Badge variant="secondary" className="font-normal text-xs bg-secondary/10 text-secondary-foreground border-secondary/20 border cursor-pointer hover:opacity-80">
+                        {article.difficulty.replace('L', 'Lv').replace('_', ' ')}
+                      </Badge>
+                    )}
+                    {article.court_area && (
+                      <Badge variant="outline" className="font-normal text-xs cursor-pointer hover:opacity-80">
+                        {article.court_area}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <div 
+                    className="text-sm text-muted-foreground line-clamp-3"
+                    dangerouslySetInnerHTML={{ __html: article.content.replace(/<[^>]*>?/gm, '').substring(0, 100) + '...' }}
+                  />
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (

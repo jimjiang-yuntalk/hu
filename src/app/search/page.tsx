@@ -6,5 +6,6 @@ export default function SearchPage({
   searchParams: { q?: string }
 }) {
   const query = searchParams?.q || ""
+  
   return <SearchClient initialQuery={query} />
 }

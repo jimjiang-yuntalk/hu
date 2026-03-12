@@ -4,8 +4,10 @@ import { notFound } from "next/navigation"
 import { renderMarkdown } from "@/lib/markdown-render"
 import { resolveDocIdToPath } from "@/lib/doc-resolver"
 
-export default async function DocPage({ params }: { params: { doc_id: string } }) {
-  const filePath = await resolveDocIdToPath(params.doc_id)
+export default async function DocPage({ params }: { params: Promise<{ doc_id: string }> | { doc_id: string } }) {
+  const p: any = await (params as any)
+  const docId = p?.doc_id
+  const filePath = await resolveDocIdToPath(docId)
   if (!filePath) return notFound()
 
   const baseDir = path.join(process.cwd(), "ybxy")

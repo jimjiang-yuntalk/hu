@@ -1,205 +1,188 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
+
+type QuoteItem = {
+  id: string
+  content: string
+  author?: string
+}
+
+interface VideoChannelItem {
+  title: string
+  url: string
+  cover?: string
+}
+
+interface VideoChannelConfig {
+  name: string
+  followUrl?: string
+  qrImageUrl?: string
+  items: VideoChannelItem[]
+}
 
 export default function UserSettingsPage() {
-  const [imageUrl, setImageUrl] = useState<string>("")
-  const [videoUrl, setVideoUrl] = useState<string>("")
-  const [report, setReport] = useState<string>("")
-  const [reportLinks, setReportLinks] = useState<any[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [error, setError] = useState<string>("")
+  const [channel, setChannel] = useState<VideoChannelConfig | null>(null)
+  const [socialConfig, setSocialConfig] = useState<any>(null)
+  const [uploads, setUploads] = useState<any[]>([])
+  const [quotes, setQuotes] = useState<QuoteItem[]>([])
+
+  const fetchChannel = async () => {
+    try {
+      const res = await fetch("/api/video-channel")
+      const data = await res.json()
+      setChannel(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const fetchSocial = async () => {
+    try {
+      const res = await fetch("/api/social-config")
+      const data = await res.json()
+      setSocialConfig(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const fetchUploads = async () => {
+    try {
+      const res = await fetch("/api/uploads")
+      const data = await res.json()
+      setUploads(data?.items || [])
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const fetchQuotes = async () => {
+    try {
+      const res = await fetch('/api/quotes')
+      const data = await res.json()
+      setQuotes(data?.items || [])
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   useEffect(() => {
-    const savedImage = window.localStorage.getItem("userSettings.imageUrl")
-    const savedVideo = window.localStorage.getItem("userSettings.videoUrl")
-    const savedReport = window.localStorage.getItem("userSettings.imageReport")
-    const savedLinks = window.localStorage.getItem("userSettings.reportLinks")
-    if (savedImage) setImageUrl(savedImage)
-    if (savedVideo) setVideoUrl(savedVideo)
-    if (savedReport) setReport(savedReport)
-    if (savedLinks) setReportLinks(JSON.parse(savedLinks))
+    fetchChannel()
+    fetchSocial()
+    fetchUploads()
+    fetchQuotes()
   }, [])
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData()
-    formData.append("file", file)
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    })
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      throw new Error(data?.error || "上传失败")
-    }
-
-    const data = await res.json()
-    const url = data?.url as string
-    if (!url) throw new Error("未返回文件地址")
-    return url
-  }
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setError("")
-    setUploading(true)
-
-    try {
-      const url = await uploadFile(file)
-      setImageUrl(url)
-      window.localStorage.setItem("userSettings.imageUrl", url)
-    } catch (err: any) {
-      setError(err?.message || "上传失败")
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setError("")
-    setUploading(true)
-
-    try {
-      const url = await uploadFile(file)
-      setVideoUrl(url)
-      window.localStorage.setItem("userSettings.videoUrl", url)
-    } catch (err: any) {
-      setError(err?.message || "上传失败")
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const generateReport = async () => {
-    const mediaUrl = imageUrl || videoUrl
-    if (!mediaUrl) {
-      setError("请先上传图片或视频")
-      return
-    }
-
-    setError("")
-    setAnalyzing(true)
-
-    try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mediaUrl }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data?.error || "生成失败")
-      }
-
-      const data = await res.json()
-      const text = data?.report_markdown as string
-      if (!text) throw new Error("未返回报告")
-
-      setReport(text)
-      setReportLinks(data?.recommended_links || [])
-      window.localStorage.setItem("userSettings.imageReport", text)
-      window.localStorage.setItem("userSettings.reportLinks", JSON.stringify(data?.recommended_links || []))
-    } catch (err: any) {
-      setError(err?.message || "生成失败")
-    } finally {
-      setAnalyzing(false)
-    }
-  }
-
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">用户上传</h1>
-        <p className="text-muted-foreground mt-2">上传并保存图片或视频，会在下方显示并可播放。</p>
+        <h1 className="text-3xl font-bold">羽拨心弦</h1>
+        <p className="text-muted-foreground mt-2">球友日常</p>
       </div>
 
-      <div className="space-y-3">
-        <label className="block text-sm font-medium">上传图片</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground hover:file:opacity-90"
-        />
-        <label className="block text-sm font-medium mt-4">上传视频</label>
-        <input
-          type="file"
-          accept="video/*"
-          onChange={handleVideoChange}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground hover:file:opacity-90"
-        />
-        {uploading && <p className="text-sm text-muted-foreground">上传中...</p>}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+      <div className="rounded-xl border bg-card p-5 space-y-4">
+        <h2 className="text-lg font-semibold">视频号内容</h2>
+        {!channel?.items || channel.items.length === 0 ? (
+          <div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">暂无内容。</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {channel.items.map((item, idx) => (
+              <div key={`${item.url}-${idx}`} className="rounded-xl border bg-card overflow-hidden">
+                <a href={item.url} target="_blank" rel="noreferrer" className="block">
+                  {item.cover ? (
+                    <img src={item.cover} alt={item.title} className="h-40 w-full object-cover" />
+                  ) : (
+                    <div className="h-40 w-full flex items-center justify-center bg-muted text-muted-foreground text-sm">
+                      暂无封面
+                    </div>
+                  )}
+                </a>
+                <div className="p-3 space-y-2">
+                  <div className="text-sm font-medium line-clamp-2">{item.title}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">已保存图片</h2>
-        {imageUrl ? (
-          <div className="rounded-lg border p-4 bg-card space-y-3">
-            <img src={imageUrl} alt="用户上传图片" className="max-w-full h-auto rounded-md" />
-            <div className="flex items-center gap-3">
-              <button
-                onClick={generateReport}
-                className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-                disabled={analyzing}
-              >
-                {analyzing ? "生成中..." : "生成斛教练点评"}
-              </button>
-              {report && (
-                <span className="text-xs text-muted-foreground">已生成报告</span>
+      <div className="rounded-xl border bg-card p-5 space-y-4">
+        <h2 className="text-lg font-semibold">精彩瞬间</h2>
+        {uploads.length === 0 ? (
+          <div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">暂无上传内容</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {uploads.map((item: any) => (
+              <Link key={item.url} href={`/media/${encodeURIComponent(item.name)}`} className="rounded-xl border bg-card overflow-hidden">
+                {item.type === "image" ? (
+                  <img src={item.url} alt={item.name} className="h-44 w-full object-cover" />
+                ) : item.type === "video" ? (
+                  <video src={item.url} className="h-44 w-full object-cover" controls preload="metadata" />
+                ) : (
+                  <div className="h-44 w-full flex items-center justify-center bg-muted text-muted-foreground text-sm">
+                    文件预览不可用
+                  </div>
+                )}
+                <div className="p-3 space-y-1">
+                  <div className="text-sm font-medium truncate">{item.name}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border bg-card p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">羽坛金句</h2>
+          <Link href="/quotes" className="text-sm text-muted-foreground hover:text-primary">查看全部</Link>
+        </div>
+        {quotes.length === 0 ? (
+          <div className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">暂无金句</div>
+        ) : (
+          <div className="space-y-2">
+            {quotes.slice(0, 3).map((q) => (
+              <div key={q.id} className="rounded-lg border bg-muted/20 p-3 text-sm">
+                “{q.content}”
+                {q.author && <div className="mt-1 text-xs text-muted-foreground">—— {q.author}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border bg-card p-5 space-y-4">
+        <h2 className="text-lg font-semibold">关注</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-lg border bg-muted/30 p-4 flex items-center gap-4">
+            <div className="w-28 h-28 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
+              {socialConfig?.videoQrUrl ? (
+                <img src={socialConfig.videoQrUrl} alt="视频号二维码" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs text-muted-foreground">暂无二维码</span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">{imageUrl}</p>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">暂无已保存图片。</p>
-        )}
-      </div>
+            <div className="space-y-2 text-sm">
+              <div className="font-medium">{socialConfig?.videoName || "羽拨心弦视频号"}</div>
 
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">斛教练点评</h2>
-        {report ? (
-          <div className="rounded-lg border p-4 bg-card whitespace-pre-wrap text-sm">
-            {report}
+            </div>
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">暂无报告。请先上传图片并生成点评。</p>
-        )}
-        {reportLinks.length > 0 && (
-          <div className="rounded-lg border p-4 bg-card">
-            <div className="text-sm font-semibold mb-2">深入学习推荐</div>
-            <ul className="text-sm space-y-1">
-              {reportLinks.map((link: any, idx: number) => (
-                <li key={idx}>
-                  <a className="text-primary hover:underline" href={link.url + '#' + link.anchor} target="_blank" rel="noreferrer">
-                    {link.title} · {link.heading}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+          <div className="rounded-lg border bg-muted/30 p-4 flex items-center gap-4">
+            <div className="w-28 h-28 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
+              {socialConfig?.mpQrUrl ? (
+                <img src={socialConfig.mpQrUrl} alt="公众号二维码" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs text-muted-foreground">暂无二维码</span>
+              )}
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="font-medium">{socialConfig?.mpName || "羽拨心弦公众号"}</div>
 
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold">已保存视频</h2>
-        {videoUrl ? (
-          <div className="rounded-lg border p-4 bg-card">
-            <video src={videoUrl} controls className="w-full rounded-md" />
-            <p className="text-xs text-muted-foreground mt-2">{videoUrl}</p>
+            </div>
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">暂无已保存视频。</p>
-        )}
+        </div>
       </div>
     </div>
   )

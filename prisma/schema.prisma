@@ -11,45 +11,36 @@ model Category {
   id        String     @id @default(uuid())
   name      String
   slug      String     @unique
-  keywords  String?    // Keywords for SEO or auto-matching
-  icon      String?    // Stores Lucide icon name (e.g., "Dumbbell", "Footprints")
+  icon      String?
   order     Int        @default(0)
-  
-  // Self-relation for hierarchy
   parentId  String?
-  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children  Category[] @relation("CategoryHierarchy")
-  
-  articles  Article[]  @relation("ArticleCategories") // Many-to-Many relation
-  
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  keywords  String?
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+  articles  Article[]  @relation("ArticleCategories")
 }
 
 model Article {
-  id          String      @id @default(uuid())
-  title       String
-  content     String      // Stores HTML or JSON from TipTap
-  
-  // Domain Specific Fields
-  court_area  CourtArea?
-  difficulty  Difficulty?
-  video_url   String?
-  
-  // Relations
-  categories  Category[]  @relation("ArticleCategories") // Many-to-Many
-  tags        Tag[]
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id         String      @id @default(uuid())
+  title      String
+  content    String
+  court_area CourtArea?
+  difficulty Difficulty?
+  video_url  String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  categories Category[]  @relation("ArticleCategories")
+  tags       Tag[]       @relation("ArticleToTag")
 }
 
 model Tag {
   id        String    @id @default(uuid())
-  name      String    @unique // 标签名，如 "杀球"
-  slug      String    @unique // URL用，如 "smash"
-  articles  Article[] // 多对多关联
+  name      String    @unique
+  slug      String    @unique
   createdAt DateTime  @default(now())
+  articles  Article[] @relation("ArticleToTag")
 }
 
 model QaHistory {
@@ -58,13 +49,23 @@ model QaHistory {
   answer         String?
   citations_json String?
   createdAt      DateTime @default(now())
+  articleId      String?
+}
+
+model TagClick {
+  id            String   @id @default(uuid())
+  tag           String   @unique
+  count         Int      @default(1)
+  lastClickedAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 enum CourtArea {
-  Net     // 网前
-  Mid     // 中场
-  Rear    // 后场
-  Full    // 全场
+  Net
+  Mid
+  Rear
+  Full
 }
 
 enum Difficulty {

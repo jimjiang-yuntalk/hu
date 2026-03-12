@@ -59,7 +59,7 @@ export function CategorySheet({ categories }: CategorySheetProps) {
       <SheetTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          新建分类 (New Category)
+          新建分类
         </Button>
       </SheetTrigger>
       <SheetContent>
@@ -71,7 +71,7 @@ export function CategorySheet({ categories }: CategorySheetProps) {
         </SheetHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">名称 (Name)</Label>
+            <Label htmlFor="name">名称</Label>
             <Input id="name" name="name" required placeholder="例如：高级战术" />
           </div>
           <div className="space-y-2">
@@ -79,13 +79,13 @@ export function CategorySheet({ categories }: CategorySheetProps) {
             <Input id="slug" name="slug" required placeholder="advanced-tactics" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="parentId">父级分类 (Parent)</Label>
+            <Label htmlFor="parentId">父级分类</Label>
             <Select name="parentId">
               <SelectTrigger>
-                <SelectValue placeholder="选择父级分类 (可选)" />
+                <SelectValue placeholder="选择父级分类（可选）" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">无 (顶级分类)</SelectItem>
+                <SelectItem value="none">无（顶级分类）</SelectItem>
                 {potentialParents.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -95,7 +95,7 @@ export function CategorySheet({ categories }: CategorySheetProps) {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="keywords">关键词 (Keywords)</Label>
+            <Label htmlFor="keywords">关键词</Label>
             <Input 
               id="keywords" 
               name="keywords" 

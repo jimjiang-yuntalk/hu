@@ -15,11 +15,13 @@ export default function MobileHeader({ sidebar }: { sidebar: ReactNode }) {
               <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0">
+          <SheetContent side="left" className="p-0" showCloseButton={false}>
             {sidebar}
           </SheetContent>
         </Sheet>
-        <div className="font-semibold text-sm">斛教练 · 羽毛球知识库</div>
+        <a href="/" className="font-semibold text-sm hover:text-primary transition-colors">
+          AI乒羽馆
+        </a>
       </div>
     </div>
   )

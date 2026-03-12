@@ -90,7 +90,7 @@ export async function searchRag(query: string, topK = 8): Promise<Citation[]> {
       title: r.item.title,
       heading: r.item.heading,
       anchor: r.item.anchor,
-      url: `/kb/doc/${encodeURIComponent(r.item.doc_id)}`,
+      url: `/article/${encodeURIComponent(r.item.doc_id)}`,
       snippet: r.item.content.slice(0, 220),
       score: Number(r.score.toFixed(4)),
     }))
